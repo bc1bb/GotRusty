@@ -1,6 +1,7 @@
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpStream;
 use crate::{Request, Response};
+use crate::gr_structs::Command;
 
 pub fn handler(stream: TcpStream) {
     // Give stream to our request reader
@@ -8,7 +9,7 @@ pub fn handler(stream: TcpStream) {
     let req = reader(stream.try_clone().unwrap());
 
     // if non-HTTP command or no User-Agent, return 400 Bad Request
-    if ! req.command.contains("HTTP/") || req.user_agent.is_empty() {
+    if req.user_agent.is_empty() {
         sender(stream.try_clone().unwrap(), Response::bad_request());
 
         return
@@ -28,13 +29,16 @@ fn reader(mut stream: TcpStream) -> Request {
     let buf_reader = BufReader::new(&mut stream);
 
     // magic line that transforms the BufReader into a Map so we can iterate through
-    let request: Vec<_> = buf_reader.lines().map(|result| result.unwrap()).take_while(|line| !line.is_empty()).collect();
+    let request: Vec<_> = buf_reader.lines()
+        .map(|result| result.unwrap())
+        .take_while(|line| !line.is_empty())
+        .collect();
 
 
     // Iterate through the map element
     for line in request {
         if line.contains("HTTP/") {
-            req.command = line;
+            req.command = Command::new(line.as_str());
         } else if line.starts_with("Host:") {
             req.host = line.to_string();
         } else if line.starts_with("User-Agent:") {

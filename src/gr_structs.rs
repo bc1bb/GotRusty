@@ -1,4 +1,6 @@
 use std::net::{IpAddr, Ipv4Addr};
+use std::path::PathBuf;
+use std::slice::Split;
 
 // -***-
 // Server struct
@@ -56,7 +58,7 @@ fn parse_addr(addr: &str) -> IpAddr {
 
 pub struct Request {
     // HTTP HEADERS
-    pub command: String,    // GET / HTTP/1.0
+    pub command: Command,    // GET / HTTP/1.0
     pub host: String,       // Host: 127.0.0.1
     pub user_agent: String, // User-Agent: [whatever]
 
@@ -67,11 +69,55 @@ pub struct Request {
 impl Request {
     pub fn new() -> Request {
         return Request {
-            command: "".to_string(),
+            command: Command::adhoc(),
             host: "Host: ".to_string(),
             user_agent: "User-Agent: ".to_string()
         }
     }
+}
+
+// -***-
+// Command struct
+// ---
+// Holds a command sent by a client,
+// Can be created using Command::new(line: &str), where line is the complete first line sent by client,
+// Private fn Command::adhoc() allows creation of empty Command (for Request::new()),
+// Can get method or path using Command::get_method(self) or Command::get_path(self).
+// -***-
+
+pub struct Command {
+    method: String, // GET
+    path: PathBuf, // /
+    http_version: f32 // HTTP/1.0
+}
+
+impl Command {
+    pub fn new(line: &str) -> Command {
+        // If invalid input, return adhoc Command
+        if ! line.contains("HTTP/") {
+            return Command::adhoc()
+        }
+
+        let splits: Vec<&str> = line.split(" ").collect();
+
+        return Command {
+            method: splits[0].to_string(),
+            path: PathBuf::from(splits[1].to_string()),
+            http_version: 1.0
+        }
+    }
+
+    fn adhoc() -> Command {
+        return Command {
+            method: "GET".to_string(),
+            path: PathBuf::from("/"),
+            http_version: 1.0
+        }
+    }
+
+    pub fn get_method(self) -> String { return self.method }
+
+    pub fn get_path(self) -> PathBuf { return self.path }
 }
 
 // -***-
