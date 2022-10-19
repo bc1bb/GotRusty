@@ -1,6 +1,7 @@
 use std::net::{IpAddr, Ipv4Addr};
 use std::path::PathBuf;
-use std::slice::Split;
+
+// Lots of 'dead code' to be found here, getters and setters functions mostly.
 
 // -***-
 // Server struct
@@ -17,36 +18,37 @@ pub struct Server {
     port: u16, // int
 }
 
+#[allow(dead_code)]
 impl Server {
     pub fn new(addr: &str, port: u16) -> Server {
         return Server {
-            addr: parse_addr(addr),
+            addr: Server::parse_addr(addr),
             port,
         }
+    }
+
+    // This function is used to parse IPv4 &str into IpAddr::V4,
+    // TODO: probably a better way to do this ?
+    fn parse_addr(addr: &str) -> IpAddr {
+        // Split str argument into Vec<&str>
+        let split_addr: Vec<&str> = addr.split(".").collect();
+
+        // Use splits to build IpAddr::V4
+        return IpAddr::V4(Ipv4Addr::new(split_addr[0].to_string().parse().unwrap(),
+                                        split_addr[1].to_string().parse().unwrap(),
+                                        split_addr[2].to_string().parse().unwrap(),
+                                        split_addr[3].to_string().parse().unwrap()))
+
+        // TODO: idiot-proof
     }
 
     pub fn get_addr(&self) -> IpAddr { return self.addr }
 
     pub fn get_port(&self) -> u16 { return self.port }
 
-    pub fn set_addr(&mut self, addr: &str) { self.addr = parse_addr(addr) }
+    pub fn set_addr(&mut self, addr: &str) { self.addr = Server::parse_addr(addr) }
 
     pub fn set_port(&mut self, port: u16) { self.port = port }
-}
-
-// This function is used to parse IPv4 &str into IpAddr::V4,
-// TODO: probably a better way to do this ?
-fn parse_addr(addr: &str) -> IpAddr {
-    // Split str argument into Vec<&str>
-    let split_addr: Vec<&str> = addr.split(".").collect();
-
-    // Use splits to build IpAddr::V4
-    return IpAddr::V4(Ipv4Addr::new(split_addr[0].to_string().parse().unwrap(),
-                                    split_addr[1].to_string().parse().unwrap(),
-                                    split_addr[2].to_string().parse().unwrap(),
-                                    split_addr[3].to_string().parse().unwrap()))
-
-    // TODO: idiot-proof
 }
 
 // -***-
@@ -54,11 +56,12 @@ fn parse_addr(addr: &str) -> IpAddr {
 // ---
 // Holds a request sent by a client,
 // Can be created using Request::new().
+// Can get Command, Host or User-Agent using Request::get_command(self) or Command::get_host(self), Command::get_user_agent(self).
 // -***-
 
 pub struct Request {
     // HTTP HEADERS
-    pub command: Command,    // GET / HTTP/1.0
+    pub command: Command,   // GET / HTTP/1.0
     pub host: String,       // Host: 127.0.0.1
     pub user_agent: String, // User-Agent: [whatever]
 
@@ -66,6 +69,7 @@ pub struct Request {
     // Request.command has to have "HTTP/" and User-Agent (see gr_conn_handler::handler())
 }
 
+#[allow(dead_code)]
 impl Request {
     pub fn new() -> Request {
         return Request {
@@ -74,6 +78,12 @@ impl Request {
             user_agent: "User-Agent: ".to_string()
         }
     }
+
+    pub fn get_command(self) -> Command { return self.command }
+
+    pub fn get_host(self) -> String { return self.host }
+
+    pub fn get_user_agent(self) -> String { return self.user_agent }
 }
 
 // -***-
@@ -85,12 +95,14 @@ impl Request {
 // Can get method or path using Command::get_method(self) or Command::get_path(self).
 // -***-
 
+#[allow(dead_code)]
 pub struct Command {
     method: String, // GET
     path: PathBuf, // /
     http_version: f32 // HTTP/1.0
 }
 
+#[allow(dead_code)]
 impl Command {
     pub fn new(line: &str) -> Command {
         // If invalid input, return adhoc Command
@@ -140,6 +152,7 @@ pub struct Response {
     content: String,           // <title>Got Rusty!</title>
 }
 
+#[allow(dead_code)]
 impl Response {
     pub fn new(r_status: &str, r_content_type: &str, r_content: &str) -> Response {
         // Content-Length requires size in bytes, str::len returns usize (bytes)
