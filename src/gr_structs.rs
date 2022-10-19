@@ -1,16 +1,17 @@
+//! # GotRusty Structs
+//! This file holds all structs and impl used in the project,
+//!
+//! Lots of 'dead code' to be found here, getters and setters functions mostly.
+
 use std::net::{IpAddr, Ipv4Addr};
 use std::path::PathBuf;
 
-// Lots of 'dead code' to be found here, getters and setters functions mostly.
-
-// -***-
-// Server struct
-// ---
-// Holds basic configuration of our server,
-// Can be created using Server::new(addr: &str, port: u16),
-// Has get_*, set_*.
-// -***-
-
+/// # Server struct
+/// Holds basic configuration of our server,
+///
+/// Can be created using `Server::new(addr: &str, port: u16)`,
+///
+/// Has `get_*`, `set_*`.
 #[derive(Clone, Copy)]
 pub struct Server {
     addr: IpAddr,
@@ -19,6 +20,7 @@ pub struct Server {
 
 #[allow(dead_code)]
 impl Server {
+    /// Turns a `&str` and `u16` into a `Server`.
     pub fn new(addr: &str, port: u16) -> Server {
         return Server {
             addr: Server::parse_addr(addr),
@@ -26,7 +28,7 @@ impl Server {
         }
     }
 
-    // This function is used to parse IPv4 &str into IpAddr::V4,
+    /// This function is used to parse IPv4 `&str` into `IpAddr::V4`.
     // TODO: probably a better way to do this ?
     fn parse_addr(addr: &str) -> IpAddr {
         // Split str argument into Vec<&str>
@@ -48,13 +50,12 @@ impl Server {
     pub fn set_port(&mut self, port: u16) { self.port = port }
 }
 
-// -***-
-// Request struct
-// ---
-// Holds a request sent by a client,
-// Can be created using Request::new().
-// Has get_*, set_*.
-// -***-
+/// # Request struct
+/// Holds a request sent by a client,
+///
+/// Can be created using `Request::new()`, which will return basic `Request`,
+///
+/// Has `get_*`, `set_*`.
 
 #[derive(Clone)]
 pub struct Request {
@@ -69,6 +70,7 @@ pub struct Request {
 
 #[allow(dead_code)]
 impl Request {
+    /// Creates a basic `Request` that can be edited with `set_*`.
     pub fn new() -> Request {
         return Request {
             command: Command::adhoc(),
@@ -86,14 +88,12 @@ impl Request {
     pub fn set_user_agent(&mut self, user_agent: String) { self.user_agent = user_agent }
 }
 
-// -***-
-// Command struct
-// ---
-// Holds a command sent by a client,
-// Can be created using Command::new(line: &str), where line is the complete first line sent by client,
-// Private fn Command::adhoc() allows creation of empty Command (for Request::new()),
-// Has get_*, set_*.
-// -***-
+/// # Command struct
+/// Holds a command (first line of HTTP request) sent by a client,
+///
+/// Can be created using `Command::new(line: &str)`, where line is the complete first line sent by client,
+///
+/// Has `get_*`, `set_*`.
 
 #[derive(Clone)]
 #[allow(dead_code)]
@@ -105,6 +105,9 @@ pub struct Command {
 
 #[allow(dead_code)]
 impl Command {
+    /// Turn the first line of an HTTP request into a `Command`,
+    ///
+    /// If `line` does not contain "HTTP/", an ad-hoc Command will be returned.
     pub fn new(line: &str) -> Command {
         // If invalid input, return adhoc Command
         if ! line.contains("HTTP/") {
@@ -120,6 +123,7 @@ impl Command {
         }
     }
 
+    /// Private function allowing creation of empty Command.
     fn adhoc() -> Command {
         return Command {
             method: "GET".to_string(),
@@ -137,15 +141,12 @@ impl Command {
     pub fn set_http_version(&mut self, http_version: f32) { self.http_version = http_version }
 }
 
-// -***-
-// Response struct
-// ---
-// Holds a response that will be sent to a client,
-// Can be created using Response::new(r_status: &str, r_content_type: &str, r_content: &str), r_* does not need header names,
-// Can be turned into [String; 5] using Response::iter(),
-// Can create basic 400 and 404 responses using Response::bad_request() and Response::not_found(),
-// Has get_*, set_*.
-// -***-
+/// # Response struct
+/// Holds a response that will be sent to a client,
+///
+/// Can be created using `Response::new(r_status: &str, r_content_type: &str, r_content: &str)`, `r_*` does not need header names,
+///
+/// Has `get_*`, `set_*`.
 
 pub struct Response {
     // HTTP HEADERS
@@ -160,6 +161,7 @@ pub struct Response {
 
 #[allow(dead_code)]
 impl Response {
+    /// Creates a `Response`, `r_*` does not require Headers names.
     pub fn new(r_status: &str, r_content_type: &str, r_content: &str) -> Response {
         // Content-Length requires size in bytes, str::len returns usize (bytes)
         let r_content_length = r_content.len();
@@ -174,17 +176,19 @@ impl Response {
         }
     }
 
-    // This function allows to iterate through a Response (see gr_conn_handler::sender())
+    /// Turn a `Response` into `[String; 5]` (allowing for loops).
     pub fn iter(self) -> [String; 5] {
         return [self.status, self.server, self.content_type, self.content_length, self.content]
     }
 
+    /// Return a basic 400 Bad Request.
     pub fn bad_request() -> Response {
         return Response::new("400 Bad Request",
                              "text/html",
                              "<h1>Bad Request</h1>")
     }
 
+    /// Return a basic 404 Not Found.
     pub fn not_found() -> Response {
         return Response::new("404 Not Found",
                              "text/html",

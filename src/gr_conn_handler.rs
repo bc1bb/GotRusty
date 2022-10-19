@@ -1,9 +1,14 @@
+//! # Connection Handler
+//! `gr_conn_handler` is dedicated to handling/replying to `TcpStream` using `handler()`, `reader()` and `sender()`.
+
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpStream;
 use crate::{Request, Response};
 use crate::gr_file_handler::get_file;
 use crate::gr_structs::Command;
 
+/// # Request Handler
+/// Public Function that is gonna handle a `TcpStream`, does not do a lot except call private functions.
 pub fn handler(stream: TcpStream) {
     // Give stream to our request reader
     // which is gonna return a Request
@@ -27,6 +32,8 @@ pub fn handler(stream: TcpStream) {
     sender(stream.try_clone().unwrap(), res);
 }
 
+/// # Request Reader
+/// Private function that is gonna turn `TcpStream` into a `Request` (see `gr_structs`).
 fn reader(mut stream: TcpStream) -> Request {
     let mut req = Request::new();
     let buf_reader = BufReader::new(&mut stream);
@@ -52,6 +59,8 @@ fn reader(mut stream: TcpStream) -> Request {
     return req // return is not mandatory but I find it more readable
 }
 
+/// # Request Sender
+/// Private function that is gonna write `Response` (see `gr_structs`) to client.
 fn sender(mut stream: TcpStream, to_send: Response) {
     for mut i in to_send.iter() {
         i += "\n";

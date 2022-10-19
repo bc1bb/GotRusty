@@ -1,3 +1,4 @@
+#![crate_name = "gotrusty"]
 extern crate core;
 
 mod gr_structs;
@@ -9,6 +10,12 @@ use std::io::Result;
 use crate::gr_structs::{Request, Response, Server};
 use crate::gr_conn_handler::handler;
 
+// TODO: config file
+
+/// # Main Function
+/// Creates a `Server`, `SocketAddr`, `TcpListener` (binds it),
+///
+/// and then send incoming `TcpStream` to `gr_conn_handler::handler()`.
 fn main() -> Result<()> {
     // Create a Server
     let my_server = Server::new("127.0.0.1", 1337);
