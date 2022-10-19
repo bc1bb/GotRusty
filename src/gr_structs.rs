@@ -8,8 +8,7 @@ use std::path::PathBuf;
 // ---
 // Holds basic configuration of our server,
 // Can be created using Server::new(addr: &str, port: u16),
-// Can get addr or port using Server::get_addr(self) or Server::get_port(self),
-// Can set addr or port using Server::set_addr(self, addr: &str) or Server::set_port(self, port: u16).
+// Has get_*, set_*.
 // -***-
 
 #[derive(Clone, Copy)]
@@ -42,12 +41,10 @@ impl Server {
         // TODO: idiot-proof
     }
 
-    pub fn get_addr(&self) -> IpAddr { return self.addr }
-
-    pub fn get_port(&self) -> u16 { return self.port }
+    pub fn get_addr(self) -> IpAddr { return self.addr }
+    pub fn get_port(self) -> u16 { return self.port }
 
     pub fn set_addr(&mut self, addr: &str) { self.addr = Server::parse_addr(addr) }
-
     pub fn set_port(&mut self, port: u16) { self.port = port }
 }
 
@@ -56,7 +53,7 @@ impl Server {
 // ---
 // Holds a request sent by a client,
 // Can be created using Request::new().
-// Can get Command, Host or User-Agent using Request::get_command(self) or Command::get_host(self), Command::get_user_agent(self).
+// Has get_*, set_*.
 // -***-
 
 #[derive(Clone)]
@@ -95,7 +92,7 @@ impl Request {
 // Holds a command sent by a client,
 // Can be created using Command::new(line: &str), where line is the complete first line sent by client,
 // Private fn Command::adhoc() allows creation of empty Command (for Request::new()),
-// Can get method or path using Command::get_method(self) or Command::get_path(self).
+// Has get_*, set_*.
 // -***-
 
 #[derive(Clone)]
@@ -146,7 +143,8 @@ impl Command {
 // Holds a response that will be sent to a client,
 // Can be created using Response::new(r_status: &str, r_content_type: &str, r_content: &str), r_* does not need header names,
 // Can be turned into [String; 5] using Response::iter(),
-// Can create basic 400 and 404 responses using Response::bad_request() and Response::not_found().
+// Can create basic 400 and 404 responses using Response::bad_request() and Response::not_found(),
+// Has get_*, set_*.
 // -***-
 
 pub struct Response {

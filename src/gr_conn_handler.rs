@@ -1,6 +1,7 @@
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpStream;
 use crate::{Request, Response};
+use crate::gr_file_handler::get_file;
 use crate::gr_structs::Command;
 
 pub fn handler(stream: TcpStream) {
@@ -8,17 +9,19 @@ pub fn handler(stream: TcpStream) {
     // which is gonna return a Request
     let req = reader(stream.try_clone().unwrap());
 
-    // if non-HTTP command or no User-Agent, return 400 Bad Request
-    if req.user_agent.is_empty() {
+    // if no User-Agent, return 400 Bad Request
+    if req.clone().get_user_agent().is_empty() {
         sender(stream.try_clone().unwrap(), Response::bad_request());
 
         return
     }
 
+    let content = get_file(req.get_command().get_path());
+
     // Create response element
     let res = Response::new("200 OK",
                             "text/html",
-                            "<h1>Got Rusty!</h1>");
+                            content.as_str());
 
     // send response we just created
     sender(stream.try_clone().unwrap(), res);
@@ -38,11 +41,11 @@ fn reader(mut stream: TcpStream) -> Request {
     // Iterate through the map element
     for line in request {
         if line.contains("HTTP/") {
-            req.command = Command::new(line.as_str());
+            req.set_command(Command::new(line.as_str()));
         } else if line.starts_with("Host:") {
-            req.host = line.to_string();
+            req.set_host(line.to_string());
         } else if line.starts_with("User-Agent:") {
-            req.user_agent = line.to_string();
+            req.set_user_agent(line.to_string());
         }
     }
 
