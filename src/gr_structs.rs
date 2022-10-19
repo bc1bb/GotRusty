@@ -59,11 +59,12 @@ impl Server {
 // Can get Command, Host or User-Agent using Request::get_command(self) or Command::get_host(self), Command::get_user_agent(self).
 // -***-
 
+#[derive(Clone)]
 pub struct Request {
     // HTTP HEADERS
-    pub command: Command,   // GET / HTTP/1.0
-    pub host: String,       // Host: 127.0.0.1
-    pub user_agent: String, // User-Agent: [whatever]
+    command: Command,   // GET / HTTP/1.0
+    host: String,       // Host: 127.0.0.1
+    user_agent: String, // User-Agent: [whatever]
 
     // We don't need to read more headers than this,
     // Request.command has to have "HTTP/" and User-Agent (see gr_conn_handler::handler())
@@ -80,10 +81,12 @@ impl Request {
     }
 
     pub fn get_command(self) -> Command { return self.command }
-
     pub fn get_host(self) -> String { return self.host }
-
     pub fn get_user_agent(self) -> String { return self.user_agent }
+
+    pub fn set_command(&mut self, command: Command) { self.command = command }
+    pub fn set_host(&mut self, host: String) { self.host = host }
+    pub fn set_user_agent(&mut self, user_agent: String) { self.user_agent = user_agent }
 }
 
 // -***-
@@ -95,6 +98,7 @@ impl Request {
 // Can get method or path using Command::get_method(self) or Command::get_path(self).
 // -***-
 
+#[derive(Clone)]
 #[allow(dead_code)]
 pub struct Command {
     method: String, // GET
@@ -128,8 +132,12 @@ impl Command {
     }
 
     pub fn get_method(self) -> String { return self.method }
-
     pub fn get_path(self) -> PathBuf { return self.path }
+    pub fn get_http_version(&self) -> f32 { return self.http_version }
+
+    pub fn set_method(&mut self, method: String) { self.method = method }
+    pub fn set_path(&mut self, path: PathBuf) { self.path = path }
+    pub fn set_http_version(&mut self, http_version: f32) { self.http_version = http_version }
 }
 
 // -***-
@@ -184,4 +192,15 @@ impl Response {
                              "text/html",
                              "<h1>Not Found</h1>")
     }
+
+    pub fn get_status(self) -> String { return self.status }
+    pub fn get_server(self) -> String { return self.server }
+    pub fn get_content_type(self) -> String { return self.content_type }
+    pub fn get_content_length(self) -> String { return self.content_length }
+    pub fn get_content(self) -> String { return self.content }
+
+    pub fn set_status(&mut self, status: String) { self.status = status }
+    pub fn set_content_type(&mut self, content_type: String) { self.content_type = content_type }
+    pub fn set_content_length(&mut self, content_length: String) { self.content_length = content_length }
+    pub fn set_content(&mut self, content: String) { self.content = content }
 }
