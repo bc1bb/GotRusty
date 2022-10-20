@@ -5,10 +5,13 @@
 
 use std::net::{IpAddr, Ipv4Addr};
 use std::path::PathBuf;
+use crate::gr_structs::Error::BadRequest;
 
+/// # Error
+/// Holds errors to avoid panic!ing.
 pub enum Error {
     FileNotFound,
-    InvalidRequest
+    BadRequest
 }
 
 /// # Server struct
@@ -113,19 +116,20 @@ impl Command {
     /// Turn the first line of an HTTP request into a `Command`,
     ///
     /// If `line` does not contain "HTTP/", an ad-hoc Command will be returned.
-    pub fn new(line: &str) -> Command {
-        // If invalid input, return adhoc Command
+    pub fn new(line: &str) -> Result<Command, Error> {
+
+        // If invalid input, return invalid request
         if ! line.contains("HTTP/") {
-            return Command::adhoc()
+            return Err(BadRequest)
         }
 
         let splits: Vec<&str> = line.split(" ").collect();
 
-        return Command {
+        return Ok(Command {
             method: splits[0].to_string(),
             path: PathBuf::from(splits[1].to_string()),
             http_version: 1.0
-        }
+        })
     }
 
     /// Private function allowing creation of empty Command.

@@ -5,28 +5,24 @@ use std::io::{BufRead, BufReader, Write};
 use std::net::TcpStream;
 use crate::{Request, Response};
 use crate::gr_file_handler::get_file;
-use crate::gr_structs::Command;
+use crate::gr_structs::{Command, Error};
 
 /// # Request Handler
-/// Public Function that is gonna handle a `TcpStream`, does not do a lot except call private functions.
+/// Public Function that is gonna handle a `TcpStream`.
 pub fn handler(stream: TcpStream) {
     // Give stream to our request reader
     // which is gonna return a Request
-    let req = reader(stream.try_clone().unwrap());
 
-    // if no User-Agent, return 400 Bad Request
-    if req.clone().get_user_agent().is_empty() {
-        sender(stream.try_clone().unwrap(), Response::bad_request());
-
-        return
-    }
-
-    let content = get_file(req.get_command().get_path());
+    let content = match reader(stream.try_clone().unwrap()) {
+        Ok(req) => get_file(req.get_command().get_path()),
+        Err(e) => Err(e)
+    };
 
     // Create response element
     let res = match content {
         Ok(content) => Response::new("200 OK", "text/html", content.as_str()),
-        Err(_) => Response::not_found()
+        Err(Error::FileNotFound) => Response::not_found(),
+        Err(Error::BadRequest) => Response::bad_request()
     };
 
     // send response we just created
@@ -35,7 +31,7 @@ pub fn handler(stream: TcpStream) {
 
 /// # Request Reader
 /// Private function that is gonna turn `TcpStream` into a `Request` (see `gr_structs`).
-fn reader(mut stream: TcpStream) -> Request {
+fn reader(mut stream: TcpStream) -> Result<Request, Error> {
     let mut req = Request::new();
     let buf_reader = BufReader::new(&mut stream);
 
@@ -47,17 +43,23 @@ fn reader(mut stream: TcpStream) -> Request {
 
 
     // Iterate through the map element
-    for line in request {
-        if line.contains("HTTP/") {
-            req.set_command(Command::new(line.as_str()));
-        } else if line.starts_with("Host:") {
+    for (i, line) in request.iter().enumerate() {
+        if i == 0 {
+            if line.contains("HTTP/") {
+                req.set_command(Command::new(line.as_str())?);
+            } else {
+                return Err(Error::BadRequest)
+            }
+        }
+
+        if line.starts_with("Host:") {
             req.set_host(line.to_string());
         } else if line.starts_with("User-Agent:") {
             req.set_user_agent(line.to_string());
         }
     }
 
-    return req // return is not mandatory but I find it more readable
+    return Ok(req) // return is not mandatory but I find it more readable
 }
 
 /// # Request Sender
