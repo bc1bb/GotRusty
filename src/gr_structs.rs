@@ -9,6 +9,7 @@ use crate::gr_structs::Error::BadRequest;
 
 /// # Error
 /// Holds errors to avoid panic!ing.
+#[derive(Debug)]
 pub enum Error {
     FileNotFound,
     BadRequest
@@ -170,18 +171,18 @@ pub struct Response {
 
 #[allow(dead_code)]
 impl Response {
-    /// Creates a `Response`, `r_*` does not require Headers names.
-    pub fn new(r_status: &str, r_content_type: &str, r_content: &str) -> Response {
+    /// Creates a `Response` from a status and a `File`
+    pub fn new(r_status: &str, r_file: File) -> Response {
         // Content-Length requires size in bytes, str::len returns usize (bytes)
-        let r_content_length = r_content.len();
+        let r_content_length = r_file.clone().get_content().len();
 
         return Response {
             status: "HTTP/1.0 ".to_string() + r_status,
             server: "Server: GotRusty/0.1".to_string(),
-            content_type: "Content-Type: ".to_string() + r_content_type,
+            content_type: "Content-Type: ".to_string() + r_file.clone().get_mime_type().as_str(),
             content_length: "Content-Length: ".to_string() + r_content_length.to_string().as_str(),
 
-            content: r_content.to_string()
+            content: r_file.get_content().to_string()
         }
     }
 
@@ -193,15 +194,13 @@ impl Response {
     /// Return a basic 400 Bad Request.
     pub fn bad_request() -> Response {
         return Response::new("400 Bad Request",
-                             "text/html",
-                             "<h1>Bad Request</h1>")
+                             File::bad_request())
     }
 
     /// Return a basic 404 Not Found.
     pub fn not_found() -> Response {
         return Response::new("404 Not Found",
-                             "text/html",
-                             "<h1>Not Found</h1>")
+                             File::not_found())
     }
 
     pub fn get_status(self) -> String { return self.status }
@@ -220,4 +219,88 @@ impl Response {
     }
 
     pub fn set_content(&mut self, content: String) { self.content = content }
+}
+
+/// # File struct
+/// Holds a file content that will be sent to a client.
+
+#[derive(Clone)]
+pub struct File {
+    name: String,
+    content: String,
+    mime_type: String
+}
+
+#[allow(dead_code)]
+impl File {
+    pub fn new(name: String, content: String) -> File {
+        File {
+            mime_type: File::fetch_mime(name.clone()),
+            name,
+            content
+        }
+    }
+
+    fn fetch_mime(name: String) -> String {
+        if ! name.contains(".") {
+            return "text/plain".to_string()
+        }
+
+        let ext = name.split(".").last().unwrap();
+
+        let r = match ext {
+            // HTML
+            "html" => "text/html",
+            "htm" => "text/html",
+            "xhtml" => "application/xhtml+xml",
+
+            // Important ext's
+            "js" => "text/javascript",
+            "json" => "application/json",
+            "css" => "text/css",
+            "xml" => "application/xml",
+            "txt" => "text/plain",
+            "log" => "text/plain",
+
+            // Images
+            "bmp" => "image/bmp",
+            "gif" => "image/gif",
+            "ico" => "image/vnd.microsoft.icon",
+            "jpg" => "image/jpeg",
+            "jpeg" => "image/jpeg",
+            "png" => "image/png",
+            "svg" => "image/svg+xml",
+            "tif" => "image/tiff",
+            "tiff" => "image/tiff",
+            "webp" => "image/webp",
+
+            // Fonts
+            "otf" => "font/otf",
+            "ttf" => "font/ttf",
+            "woff" => "font/woff",
+            "woff2" => "font/woff2",
+
+            _ => "application/octet-stream"
+        };
+
+        return r.to_string()
+    }
+
+    fn bad_request() -> File {
+        return File::new("error.html".to_string(),
+                         "<h1>Bad Request</h1>".to_string())
+    }
+
+    fn not_found() -> File {
+        return File::new("error.html".to_string(),
+                         "<h1>Not Found</h1>".to_string())
+    }
+
+    pub fn get_name(self) -> String { println!("{}", self.name.len().to_string()); return self.name }
+    pub fn get_content(self) -> String { return self.content }
+    pub fn get_mime_type(self) -> String { return self.mime_type }
+
+    pub fn set_name(&mut self, name: String) { self.name = name }
+    pub fn set_content(&mut self, content: String) { self.content = content }
+    pub fn set_mime_type(mut self) { self.mime_type = File::fetch_mime(self.name) }
 }

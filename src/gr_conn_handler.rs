@@ -1,4 +1,4 @@
-//! # Connection Handler
+//! # GotRusty Connection Handler
 //! `gr_conn_handler` is dedicated to handling/replying to `TcpStream` using `handler()`, `reader()` and `sender()`.
 
 use std::io::{BufRead, BufReader, Write};
@@ -13,14 +13,14 @@ pub fn handler(stream: TcpStream) {
     // Give stream to our request reader
     // which is gonna return a Request
 
-    let content = match reader(stream.try_clone().unwrap()) {
+    let file = match reader(stream.try_clone().unwrap()) {
         Ok(req) => get_file(req.get_command().get_path()),
         Err(e) => Err(e)
     };
 
     // Create response element
-    let res = match content {
-        Ok(content) => Response::new("200 OK", "text/html", content.as_str()),
+    let res = match file {
+        Ok(file) => Response::new("200 OK", file),
         Err(Error::FileNotFound) => Response::not_found(),
         Err(Error::BadRequest) => Response::bad_request()
     };
