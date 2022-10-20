@@ -6,6 +6,11 @@
 use std::net::{IpAddr, Ipv4Addr};
 use std::path::PathBuf;
 
+pub enum Error {
+    FileNotFound,
+    InvalidRequest
+}
+
 /// # Server struct
 /// Holds basic configuration of our server,
 ///
@@ -203,6 +208,12 @@ impl Response {
 
     pub fn set_status(&mut self, status: String) { self.status = status }
     pub fn set_content_type(&mut self, content_type: String) { self.content_type = content_type }
-    pub fn set_content_length(&mut self, content_length: String) { self.content_length = content_length }
+
+    /// Will automatically define Content-Length as per the `Response.content`.
+    pub fn set_content_length(&mut self) {
+        let content_length = self.content.len();
+        return self.content_length = "Content-Length: ".to_string() + content_length.to_string().as_str();
+    }
+
     pub fn set_content(&mut self, content: String) { self.content = content }
 }

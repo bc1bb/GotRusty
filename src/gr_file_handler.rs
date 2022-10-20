@@ -1,23 +1,26 @@
 use std::env::current_dir;
 use std::fs::read_to_string;
 use std::path::{Path, PathBuf};
+use crate::gr_structs::Error;
 
-// TODO: handle NotFound/404
 // TODO: change mime type of response
-pub fn get_file(path: PathBuf) -> String {
+pub fn get_file(path: PathBuf) -> Result<String, Error> {
     let abs = get_absolute_path(path);
 
     // use index.html in case user's request is a folder
     if abs.is_dir() {
-        return read_file(abs.join("index.html").into_boxed_path());
+        return Ok(read_file(abs.join("index.html").into_boxed_path()))?
     }
 
-    return read_file(abs);
+    return Ok(read_file(abs))?
 }
 
-fn read_file(path: Box<Path>) -> String {
-    println!("{}", path.to_str().unwrap().to_string());
-    return read_to_string(path).unwrap().to_string()
+fn read_file(path: Box<Path>) -> Result<String, Error> {
+    if path.exists() {
+        return Ok(read_to_string(path).unwrap().to_string())
+    } else {
+        return Err(Error::FileNotFound)
+    }
 }
 
 // Return complete path of cwd + req.command.path

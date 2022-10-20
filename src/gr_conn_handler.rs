@@ -24,9 +24,10 @@ pub fn handler(stream: TcpStream) {
     let content = get_file(req.get_command().get_path());
 
     // Create response element
-    let res = Response::new("200 OK",
-                            "text/html",
-                            content.as_str());
+    let res = match content {
+        Ok(content) => Response::new("200 OK", "text/html", content.as_str()),
+        Err(_) => Response::not_found()
+    };
 
     // send response we just created
     sender(stream.try_clone().unwrap(), res);
