@@ -1,15 +1,15 @@
 #![crate_name = "gotrusty"]
 extern crate core;
 
-mod gr_structs;
 mod gr_conn_handler;
 mod gr_file_handler;
+mod gr_structs;
 
-use std::net::{SocketAddr, TcpListener};
-use std::io::Result;
-use std::thread;
-use crate::gr_structs::{Request, Response, Server};
 use crate::gr_conn_handler::handler;
+use crate::gr_structs::{Request, Response, Server};
+use std::io::Result;
+use std::net::{SocketAddr, TcpListener};
+use std::thread::spawn;
 
 // TODO: config file
 
@@ -29,9 +29,10 @@ fn main() -> Result<()> {
 
     // Handle and close connections
     for stream in listener.incoming() {
-        thread::spawn(|| { handler(stream.unwrap()); });
+        spawn(|| {
+            handler(stream.unwrap());
+        });
     }
 
     return Ok(());
 }
-
