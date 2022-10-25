@@ -3,6 +3,8 @@
 //!
 //! Lots of 'dead code' to be found here, getters and setters functions mostly.
 
+use std::env::current_dir;
+use std::fs::read_to_string;
 use std::net::{IpAddr, Ipv4Addr};
 use std::path::PathBuf;
 use crate::gr_structs::Error::BadRequest;
@@ -287,13 +289,17 @@ impl File {
     }
 
     fn bad_request() -> File {
+        let cwd = current_dir().unwrap().into_os_string().into_string().unwrap();
+
         return File::new("error.html".to_string(),
-                         "<h1>Bad Request</h1>".to_string())
+                         read_to_string(PathBuf::from(cwd + "/error/400.html")).unwrap())
     }
 
     fn not_found() -> File {
+        let cwd = current_dir().unwrap().into_os_string().into_string().unwrap();
+
         return File::new("error.html".to_string(),
-                         "<h1>Not Found</h1>".to_string())
+                         read_to_string(PathBuf::from(cwd + "/error/404.html")).unwrap())
     }
 
     pub fn get_name(self) -> String { println!("{}", self.name.len().to_string()); return self.name }
