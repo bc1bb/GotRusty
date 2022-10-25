@@ -1,10 +1,10 @@
 //! # GotRusty File Handler
 //! This file holds all file related stuff required in GR.
 
+use crate::gr_structs::{Error, File};
 use std::env::current_dir;
 use std::fs::read_to_string;
 use std::path::{Path, PathBuf};
-use crate::gr_structs::{Error, File};
 
 /// # File Reader
 /// This function handles a `PathBuf` (as given by client) and returns the content in a `String`,

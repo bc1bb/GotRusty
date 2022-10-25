@@ -3,11 +3,11 @@
 //!
 //! Lots of 'dead code' to be found here, getters and setters functions mostly.
 
+use crate::gr_structs::Error::BadRequest;
 use std::env::current_dir;
 use std::fs::read_to_string;
 use std::net::{IpAddr, Ipv4Addr};
 use std::path::PathBuf;
-use crate::gr_structs::Error::BadRequest;
 
 /// # Error
 /// Holds errors to avoid panic!ing.
@@ -46,19 +46,29 @@ impl Server {
         let split_addr: Vec<&str> = addr.split(".").collect();
 
         // Use splits to build IpAddr::V4
-        return IpAddr::V4(Ipv4Addr::new(split_addr[0].to_string().parse().unwrap(),
-                                        split_addr[1].to_string().parse().unwrap(),
-                                        split_addr[2].to_string().parse().unwrap(),
-                                        split_addr[3].to_string().parse().unwrap()));
+        return IpAddr::V4(Ipv4Addr::new(
+            split_addr[0].to_string().parse().unwrap(),
+            split_addr[1].to_string().parse().unwrap(),
+            split_addr[2].to_string().parse().unwrap(),
+            split_addr[3].to_string().parse().unwrap(),
+        ));
 
         // TODO: idiot-proof
     }
 
-    pub fn get_addr(self) -> IpAddr { return self.addr; }
-    pub fn get_port(self) -> u16 { return self.port; }
+    pub fn get_addr(self) -> IpAddr {
+        return self.addr;
+    }
+    pub fn get_port(self) -> u16 {
+        return self.port;
+    }
 
-    pub fn set_addr(&mut self, addr: &str) { return self.addr = Server::parse_addr(addr); }
-    pub fn set_port(&mut self, port: u16) { return self.port = port; }
+    pub fn set_addr(&mut self, addr: &str) {
+        return self.addr = Server::parse_addr(addr);
+    }
+    pub fn set_port(&mut self, port: u16) {
+        return self.port = port;
+    }
 }
 
 /// # Request struct
@@ -71,12 +81,12 @@ impl Server {
 #[derive(Clone)]
 pub struct Request {
     // HTTP HEADERS
-    command: Command,   // GET / HTTP/1.0
-    host: String,       // Host: 127.0.0.1
+    command: Command, // GET / HTTP/1.0
+    host: String,     // Host: 127.0.0.1
     user_agent: String, // User-Agent: [whatever]
 
-    // We don't need to read more headers than this,
-    // Request.command has to have "HTTP/" and a User-Agent
+                      // We don't need to read more headers than this,
+                      // Request.command has to have "HTTP/" and a User-Agent
 }
 
 #[allow(dead_code)]
@@ -90,13 +100,25 @@ impl Request {
         };
     }
 
-    pub fn get_command(self) -> Command { return self.command; }
-    pub fn get_host(self) -> String { return self.host; }
-    pub fn get_user_agent(self) -> String { return self.user_agent; }
+    pub fn get_command(self) -> Command {
+        return self.command;
+    }
+    pub fn get_host(self) -> String {
+        return self.host;
+    }
+    pub fn get_user_agent(self) -> String {
+        return self.user_agent;
+    }
 
-    pub fn set_command(&mut self, command: Command) { return self.command = command; }
-    pub fn set_host(&mut self, host: String) { return self.host = host; }
-    pub fn set_user_agent(&mut self, user_agent: String) { return self.user_agent = user_agent; }
+    pub fn set_command(&mut self, command: Command) {
+        return self.command = command;
+    }
+    pub fn set_host(&mut self, host: String) {
+        return self.host = host;
+    }
+    pub fn set_user_agent(&mut self, user_agent: String) {
+        return self.user_agent = user_agent;
+    }
 }
 
 /// # Command struct
@@ -109,8 +131,8 @@ impl Request {
 #[derive(Clone)]
 #[allow(dead_code)]
 pub struct Command {
-    method: String, // GET
-    path: PathBuf, // /
+    method: String,    // GET
+    path: PathBuf,     // /
     http_version: f32, // HTTP/1.0
 }
 
@@ -120,9 +142,8 @@ impl Command {
     ///
     /// If `line` does not contain "HTTP/" it will return `Error::BadRequest`.
     pub fn new(line: &str) -> Result<Command, Error> {
-
         // If invalid input, return invalid request
-        if ! line.contains("HTTP/") {
+        if !line.contains("HTTP/") {
             return Err(BadRequest);
         };
 
@@ -144,13 +165,25 @@ impl Command {
         };
     }
 
-    pub fn get_method(self) -> String { return self.method; }
-    pub fn get_path(self) -> PathBuf { return self.path; }
-    pub fn get_http_version(&self) -> f32 { return self.http_version; }
+    pub fn get_method(self) -> String {
+        return self.method;
+    }
+    pub fn get_path(self) -> PathBuf {
+        return self.path;
+    }
+    pub fn get_http_version(&self) -> f32 {
+        return self.http_version;
+    }
 
-    pub fn set_method(&mut self, method: String) { return self.method = method; }
-    pub fn set_path(&mut self, path: PathBuf) { return self.path = path; }
-    pub fn set_http_version(&mut self, http_version: f32) { return self.http_version = http_version; }
+    pub fn set_method(&mut self, method: String) {
+        return self.method = method;
+    }
+    pub fn set_path(&mut self, path: PathBuf) {
+        return self.path = path;
+    }
+    pub fn set_http_version(&mut self, http_version: f32) {
+        return self.http_version = http_version;
+    }
 }
 
 /// # Response struct
@@ -168,7 +201,7 @@ pub struct Response {
     content_length: String, // Content-Length: {content.len()}
 
     // ACTUAL CONTENT
-    content: String,           // <title>Got Rusty!</title>
+    content: String, // <title>Got Rusty!</title>
 }
 
 #[allow(dead_code)]
@@ -185,42 +218,64 @@ impl Response {
             content_length: "Content-Length: ".to_string() + r_content_length.to_string().as_str(),
 
             content: r_file.get_content().to_string(),
-        }
+        };
     }
 
     /// Turn a `Response` into `[String; 6]` (allowing for loops).
     pub fn iter(self) -> [String; 6] {
-        return [self.status, self.server, self.content_type, self.content_length, "".to_string(), self.content];
+        return [
+            self.status,
+            self.server,
+            self.content_type,
+            self.content_length,
+            "".to_string(),
+            self.content,
+        ];
     }
 
     /// Return a basic 400 Bad Request.
     pub fn bad_request() -> Response {
-        return Response::new("400 Bad Request",
-                             File::bad_request());
+        return Response::new("400 Bad Request", File::bad_request());
     }
 
     /// Return a basic 404 Not Found.
     pub fn not_found() -> Response {
-        return Response::new("404 Not Found",
-                             File::not_found());
+        return Response::new("404 Not Found", File::not_found());
     }
 
-    pub fn get_status(self) -> String { return self.status; }
-    pub fn get_server(self) -> String { return self.server; }
-    pub fn get_content_type(self) -> String { return self.content_type; }
-    pub fn get_content_length(self) -> String { return self.content_length; }
-    pub fn get_content(self) -> String { return self.content; }
+    pub fn get_status(self) -> String {
+        return self.status;
+    }
+    pub fn get_server(self) -> String {
+        return self.server;
+    }
+    pub fn get_content_type(self) -> String {
+        return self.content_type;
+    }
+    pub fn get_content_length(self) -> String {
+        return self.content_length;
+    }
+    pub fn get_content(self) -> String {
+        return self.content;
+    }
 
-    pub fn set_status(&mut self, status: String) { return self.status = status; }
-    pub fn set_content_type(&mut self, content_type: String) { return self.content_type = content_type; }
+    pub fn set_status(&mut self, status: String) {
+        return self.status = status;
+    }
+    pub fn set_content_type(&mut self, content_type: String) {
+        return self.content_type = content_type;
+    }
 
     /// Will automatically define Content-Length as per the `Response.content`.
     pub fn set_content_length(&mut self) {
         let content_length = self.content.len();
-        return self.content_length = "Content-Length: ".to_string() + content_length.to_string().as_str();
+        return self.content_length =
+            "Content-Length: ".to_string() + content_length.to_string().as_str();
     }
 
-    pub fn set_content(&mut self, content: String) { return self.content = content; }
+    pub fn set_content(&mut self, content: String) {
+        return self.content = content;
+    }
 }
 
 /// # File struct
@@ -230,7 +285,7 @@ impl Response {
 pub struct File {
     name: String,
     content: String,
-    mime_type: String
+    mime_type: String,
 }
 
 #[allow(dead_code)]
@@ -244,7 +299,7 @@ impl File {
     }
 
     fn fetch_mime(name: String) -> String {
-        if ! name.contains(".") {
+        if !name.contains(".") {
             return "text/plain".to_string();
         };
 
@@ -289,24 +344,48 @@ impl File {
     }
 
     fn bad_request() -> File {
-        let cwd = current_dir().unwrap().into_os_string().into_string().unwrap();
+        let cwd = current_dir()
+            .unwrap()
+            .into_os_string()
+            .into_string()
+            .unwrap();
 
-        return File::new("error.html".to_string(),
-                         read_to_string(PathBuf::from(cwd + "/error/400.html")).unwrap());
+        return File::new(
+            "error.html".to_string(),
+            read_to_string(PathBuf::from(cwd + "/error/400.html")).unwrap(),
+        );
     }
 
     fn not_found() -> File {
-        let cwd = current_dir().unwrap().into_os_string().into_string().unwrap();
+        let cwd = current_dir()
+            .unwrap()
+            .into_os_string()
+            .into_string()
+            .unwrap();
 
-        return File::new("error.html".to_string(),
-                         read_to_string(PathBuf::from(cwd + "/error/404.html")).unwrap());
+        return File::new(
+            "error.html".to_string(),
+            read_to_string(PathBuf::from(cwd + "/error/404.html")).unwrap(),
+        );
     }
 
-    pub fn get_name(self) -> String { return self.name; }
-    pub fn get_content(self) -> String { return self.content; }
-    pub fn get_mime_type(self) -> String { return self.mime_type; }
+    pub fn get_name(self) -> String {
+        return self.name;
+    }
+    pub fn get_content(self) -> String {
+        return self.content;
+    }
+    pub fn get_mime_type(self) -> String {
+        return self.mime_type;
+    }
 
-    pub fn set_name(&mut self, name: String) { return self.name = name; }
-    pub fn set_content(&mut self, content: String) { return self.content = content; }
-    pub fn set_mime_type(mut self) { return self.mime_type = File::fetch_mime(self.name); }
+    pub fn set_name(&mut self, name: String) {
+        return self.name = name;
+    }
+    pub fn set_content(&mut self, content: String) {
+        return self.content = content;
+    }
+    pub fn set_mime_type(mut self) {
+        return self.mime_type = File::fetch_mime(self.name);
+    }
 }

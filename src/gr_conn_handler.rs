@@ -1,11 +1,11 @@
 //! # GotRusty Connection Handler
 //! `gr_conn_handler` is dedicated to handling/replying to `TcpStream` using `handler()`, `reader()` and `sender()`.
 
-use std::io::{BufRead, BufReader, Write};
-use std::net::TcpStream;
-use crate::{Request, Response};
 use crate::gr_file_handler::get_file;
 use crate::gr_structs::{Command, Error};
+use crate::{Request, Response};
+use std::io::{BufRead, BufReader, Write};
+use std::net::TcpStream;
 
 /// # Request Handler
 /// Public Function that is gonna handle a `TcpStream`.
@@ -36,11 +36,11 @@ fn reader(mut stream: TcpStream) -> Result<Request, Error> {
     let buf_reader = BufReader::new(&mut stream);
 
     // magic line that transforms the BufReader into a Map so we can iterate through
-    let request: Vec<_> = buf_reader.lines()
+    let request: Vec<_> = buf_reader
+        .lines()
         .map(|result| result.unwrap())
         .take_while(|line| !line.is_empty())
         .collect();
-
 
     // Iterate through the map element
     for (i, line) in request.iter().enumerate() {
@@ -48,7 +48,7 @@ fn reader(mut stream: TcpStream) -> Result<Request, Error> {
             if line.contains("HTTP/") {
                 req.set_command(Command::new(line.as_str())?);
             } else {
-                return Err(Error::BadRequest)
+                return Err(Error::BadRequest);
             }
         }
 
