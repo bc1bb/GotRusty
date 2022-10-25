@@ -66,7 +66,7 @@ fn reader(mut stream: TcpStream) -> Result<Request, Error> {
 /// Private function that is gonna write `Response` (see `gr_structs`) to client.
 fn sender(mut stream: TcpStream, to_send: Response) {
     for mut i in to_send.iter() {
-        i += "\n";
+        i.push(b'\n');
 
         // finally send
         stream.write(i.as_ref()).unwrap();

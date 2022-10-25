@@ -3,11 +3,11 @@
 
 use crate::gr_structs::{Error, File};
 use std::env::current_dir;
-use std::fs::read_to_string;
+use std::fs::read;
 use std::path::{Path, PathBuf};
 
 /// # File Reader
-/// This function handles a `PathBuf` (as given by client) and returns the content in a `String`,
+/// This function handles a `PathBuf` (as given by client) and returns the content in a `File`,
 ///
 /// If given path is a dir (`PathBuf::is_dir()`), it will try to read path + "index.html",
 pub fn get_file(path: PathBuf) -> Result<File, Error> {
@@ -15,7 +15,6 @@ pub fn get_file(path: PathBuf) -> Result<File, Error> {
 
     // use index.html in case user's request is a folder
     if abs.is_dir() {
-        //return get_file(abs.join("index.html"))
         let file_name = "index.html";
         let content = read_file(abs.join("index.html").into_boxed_path())?;
 
@@ -32,10 +31,9 @@ pub fn get_file(path: PathBuf) -> Result<File, Error> {
     return Ok(file);
 }
 
-fn read_file(path: Box<Path>) -> Result<String, Error> {
+fn read_file(path: Box<Path>) -> Result<Vec<u8>, Error> {
     if path.exists() {
-        // TODO: handle non UTF-8 data (aka: most non text files) = use vec instead of String
-        return Ok(read_to_string(path).unwrap());
+        return Ok(read(path).unwrap());
     } else {
         return Err(Error::FileNotFound);
     }

@@ -5,7 +5,7 @@
 
 use crate::gr_structs::Error::BadRequest;
 use std::env::current_dir;
-use std::fs::read_to_string;
+use std::fs::read;
 use std::net::{IpAddr, Ipv4Addr};
 use std::path::PathBuf;
 
@@ -201,7 +201,7 @@ pub struct Response {
     content_length: String, // Content-Length: {content.len()}
 
     // ACTUAL CONTENT
-    content: String, // <title>Got Rusty!</title>
+    content: Vec<u8>, // <title>Got Rusty!</title>
 }
 
 #[allow(dead_code)]
@@ -217,18 +217,18 @@ impl Response {
             content_type: "Content-Type: ".to_string() + r_file.clone().get_mime_type().as_str(),
             content_length: "Content-Length: ".to_string() + r_content_length.to_string().as_str(),
 
-            content: r_file.get_content().to_string(),
+            content: r_file.get_content(),
         };
     }
 
-    /// Turn a `Response` into `[String; 6]` (allowing for loops).
-    pub fn iter(self) -> [String; 6] {
+    /// Turn a `Response` into `[Vec<u8>; 6]` (allowing for loops).
+    pub fn iter(self) -> [Vec<u8>; 6] {
         return [
-            self.status,
-            self.server,
-            self.content_type,
-            self.content_length,
-            "".to_string(),
+            self.status.as_bytes().to_vec(),
+            self.server.as_bytes().to_vec(),
+            self.content_type.as_bytes().to_vec(),
+            self.content_length.as_bytes().to_vec(),
+            "".to_string().as_bytes().to_vec(),
             self.content,
         ];
     }
@@ -255,7 +255,7 @@ impl Response {
     pub fn get_content_length(self) -> String {
         return self.content_length;
     }
-    pub fn get_content(self) -> String {
+    pub fn get_content(self) -> Vec<u8> {
         return self.content;
     }
 
@@ -273,7 +273,7 @@ impl Response {
             "Content-Length: ".to_string() + content_length.to_string().as_str();
     }
 
-    pub fn set_content(&mut self, content: String) {
+    pub fn set_content(&mut self, content: Vec<u8>) {
         return self.content = content;
     }
 }
@@ -284,13 +284,13 @@ impl Response {
 #[derive(Clone)]
 pub struct File {
     name: String,
-    content: String,
+    content: Vec<u8>,
     mime_type: String,
 }
 
 #[allow(dead_code)]
 impl File {
-    pub fn new(name: String, content: String) -> File {
+    pub fn new(name: String, content: Vec<u8>) -> File {
         return File {
             mime_type: File::fetch_mime(name.clone()),
             name,
@@ -352,7 +352,7 @@ impl File {
 
         return File::new(
             "error.html".to_string(),
-            read_to_string(PathBuf::from(cwd + "/error/400.html")).unwrap(),
+            read(PathBuf::from(cwd + "/error/400.html")).unwrap(),
         );
     }
 
@@ -365,14 +365,14 @@ impl File {
 
         return File::new(
             "error.html".to_string(),
-            read_to_string(PathBuf::from(cwd + "/error/404.html")).unwrap(),
+            read(PathBuf::from(cwd + "/error/404.html")).unwrap(),
         );
     }
 
     pub fn get_name(self) -> String {
         return self.name;
     }
-    pub fn get_content(self) -> String {
+    pub fn get_content(self) -> Vec<u8> {
         return self.content;
     }
     pub fn get_mime_type(self) -> String {
@@ -382,7 +382,7 @@ impl File {
     pub fn set_name(&mut self, name: String) {
         return self.name = name;
     }
-    pub fn set_content(&mut self, content: String) {
+    pub fn set_content(&mut self, content: Vec<u8>) {
         return self.content = content;
     }
     pub fn set_mime_type(mut self) {
