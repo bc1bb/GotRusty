@@ -53,10 +53,5 @@ fn get_absolute_path(path: PathBuf) -> Box<Path> {
     // Complete path
     let c_path = PathBuf::from(cwd.clone() + &*r_path);
 
-    // Simple but probably useless security check, if client manages to get out of cwd:
-    if ! c_path.to_str().unwrap().starts_with(cwd.clone().as_str()) {
-        return PathBuf::from(cwd.clone()).into_boxed_path();
-    }
-
     return c_path.into_boxed_path();
 }
