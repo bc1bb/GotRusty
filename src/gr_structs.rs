@@ -187,8 +187,8 @@ impl Response {
     }
 
     /// Turn a `Response` into `[String; 5]` (allowing for loops).
-    pub fn iter(self) -> [String; 5] {
-        return [self.status, self.server, self.content_type, self.content_length, self.content]
+    pub fn iter(self) -> [String; 6] {
+        return [self.status, self.server, self.content_type, self.content_length, "\n".to_string(), self.content]
     }
 
     /// Return a basic 400 Bad Request.

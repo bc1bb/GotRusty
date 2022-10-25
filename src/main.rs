@@ -7,6 +7,7 @@ mod gr_file_handler;
 
 use std::net::{SocketAddr, TcpListener};
 use std::io::Result;
+use std::thread;
 use crate::gr_structs::{Request, Response, Server};
 use crate::gr_conn_handler::handler;
 
@@ -15,7 +16,7 @@ use crate::gr_conn_handler::handler;
 /// # Main Function
 /// Creates a `Server`, `SocketAddr`, `TcpListener` (binds it),
 ///
-/// and then send incoming `TcpStream` to `gr_conn_handler::handler()`.
+/// Creates a thread that sends incoming `TcpStream` to `gr_conn_handler::handler()`.
 fn main() -> Result<()> {
     // Create a Server
     let my_server = Server::new("127.0.0.1", 1337);
@@ -28,7 +29,7 @@ fn main() -> Result<()> {
 
     // Handle and close connections
     for stream in listener.incoming() {
-        handler(stream?);
+        thread::spawn(|| { handler(stream.unwrap()); });
     }
 
     return Ok(())

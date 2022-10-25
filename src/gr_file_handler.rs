@@ -34,8 +34,8 @@ pub fn get_file(path: PathBuf) -> Result<File, Error> {
 
 fn read_file(path: Box<Path>) -> Result<String, Error> {
     if path.exists() {
-        // TODO: handle non UTF-8 data (aka: most non text files)
-        return Ok(read_to_string(path).unwrap().to_string())
+        // TODO: handle non UTF-8 data (aka: most non text files) = use vec instead of String
+        return Ok(read_to_string(path).unwrap())
     } else {
         return Err(Error::FileNotFound)
     }

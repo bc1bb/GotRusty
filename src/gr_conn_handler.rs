@@ -68,12 +68,6 @@ fn sender(mut stream: TcpStream, to_send: Response) {
     for mut i in to_send.iter() {
         i += "\n";
 
-        // Add a newline element on Content-Length because its the last header
-        // TODO: make this less hacky
-        if i.starts_with("Content-Length:") {
-            i += "\n";
-        }
-
         // finally send
         stream.write(i.as_ref()).unwrap();
     }
