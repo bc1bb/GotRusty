@@ -32,6 +32,6 @@ fn main() -> Result<()> {
         thread::spawn(|| { handler(stream.unwrap()); });
     }
 
-    return Ok(())
+    return Ok(());
 }
 

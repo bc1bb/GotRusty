@@ -15,14 +15,14 @@ pub fn handler(stream: TcpStream) {
 
     let file = match reader(stream.try_clone().unwrap()) {
         Ok(req) => get_file(req.get_command().get_path()),
-        Err(e) => Err(e)
+        Err(e) => Err(e),
     };
 
     // Create response element
     let res = match file {
         Ok(file) => Response::new("200 OK", file),
         Err(Error::FileNotFound) => Response::not_found(),
-        Err(Error::BadRequest) => Response::bad_request()
+        Err(Error::BadRequest) => Response::bad_request(),
     };
 
     // send response we just created
@@ -59,7 +59,7 @@ fn reader(mut stream: TcpStream) -> Result<Request, Error> {
         }
     }
 
-    return Ok(req) // return is not mandatory but I find it more readable
+    return Ok(req);
 }
 
 /// # Request Sender

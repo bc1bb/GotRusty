@@ -14,7 +14,7 @@ use crate::gr_structs::Error::BadRequest;
 #[derive(Debug)]
 pub enum Error {
     FileNotFound,
-    BadRequest
+    BadRequest,
 }
 
 /// # Server struct
@@ -36,7 +36,7 @@ impl Server {
         return Server {
             addr: Server::parse_addr(addr),
             port,
-        }
+        };
     }
 
     /// This function is used to parse IPv4 `&str` into `IpAddr::V4`.
@@ -49,16 +49,16 @@ impl Server {
         return IpAddr::V4(Ipv4Addr::new(split_addr[0].to_string().parse().unwrap(),
                                         split_addr[1].to_string().parse().unwrap(),
                                         split_addr[2].to_string().parse().unwrap(),
-                                        split_addr[3].to_string().parse().unwrap()))
+                                        split_addr[3].to_string().parse().unwrap()));
 
         // TODO: idiot-proof
     }
 
-    pub fn get_addr(self) -> IpAddr { return self.addr }
-    pub fn get_port(self) -> u16 { return self.port }
+    pub fn get_addr(self) -> IpAddr { return self.addr; }
+    pub fn get_port(self) -> u16 { return self.port; }
 
-    pub fn set_addr(&mut self, addr: &str) { self.addr = Server::parse_addr(addr) }
-    pub fn set_port(&mut self, port: u16) { self.port = port }
+    pub fn set_addr(&mut self, addr: &str) { return self.addr = Server::parse_addr(addr); }
+    pub fn set_port(&mut self, port: u16) { return self.port = port; }
 }
 
 /// # Request struct
@@ -76,7 +76,7 @@ pub struct Request {
     user_agent: String, // User-Agent: [whatever]
 
     // We don't need to read more headers than this,
-    // Request.command has to have "HTTP/" and User-Agent (see gr_conn_handler::handler())
+    // Request.command has to have "HTTP/" and a User-Agent
 }
 
 #[allow(dead_code)]
@@ -86,17 +86,17 @@ impl Request {
         return Request {
             command: Command::adhoc(),
             host: "Host: ".to_string(),
-            user_agent: "User-Agent: ".to_string()
-        }
+            user_agent: "User-Agent: ".to_string(),
+        };
     }
 
-    pub fn get_command(self) -> Command { return self.command }
-    pub fn get_host(self) -> String { return self.host }
-    pub fn get_user_agent(self) -> String { return self.user_agent }
+    pub fn get_command(self) -> Command { return self.command; }
+    pub fn get_host(self) -> String { return self.host; }
+    pub fn get_user_agent(self) -> String { return self.user_agent; }
 
-    pub fn set_command(&mut self, command: Command) { self.command = command }
-    pub fn set_host(&mut self, host: String) { self.host = host }
-    pub fn set_user_agent(&mut self, user_agent: String) { self.user_agent = user_agent }
+    pub fn set_command(&mut self, command: Command) { return self.command = command; }
+    pub fn set_host(&mut self, host: String) { return self.host = host; }
+    pub fn set_user_agent(&mut self, user_agent: String) { return self.user_agent = user_agent; }
 }
 
 /// # Command struct
@@ -111,28 +111,28 @@ impl Request {
 pub struct Command {
     method: String, // GET
     path: PathBuf, // /
-    http_version: f32 // HTTP/1.0
+    http_version: f32, // HTTP/1.0
 }
 
 #[allow(dead_code)]
 impl Command {
     /// Turn the first line of an HTTP request into a `Command`,
     ///
-    /// If `line` does not contain "HTTP/", an ad-hoc Command will be returned.
+    /// If `line` does not contain "HTTP/" it will return `Error::BadRequest`.
     pub fn new(line: &str) -> Result<Command, Error> {
 
         // If invalid input, return invalid request
         if ! line.contains("HTTP/") {
-            return Err(BadRequest)
-        }
+            return Err(BadRequest);
+        };
 
         let splits: Vec<&str> = line.split(" ").collect();
 
         return Ok(Command {
             method: splits[0].to_string(),
             path: PathBuf::from(splits[1].to_string()),
-            http_version: 1.0
-        })
+            http_version: 1.0,
+        });
     }
 
     /// Private function allowing creation of empty Command.
@@ -140,23 +140,23 @@ impl Command {
         return Command {
             method: "GET".to_string(),
             path: PathBuf::from("/"),
-            http_version: 1.0
-        }
+            http_version: 1.0,
+        };
     }
 
-    pub fn get_method(self) -> String { return self.method }
-    pub fn get_path(self) -> PathBuf { return self.path }
-    pub fn get_http_version(&self) -> f32 { return self.http_version }
+    pub fn get_method(self) -> String { return self.method; }
+    pub fn get_path(self) -> PathBuf { return self.path; }
+    pub fn get_http_version(&self) -> f32 { return self.http_version; }
 
-    pub fn set_method(&mut self, method: String) { self.method = method }
-    pub fn set_path(&mut self, path: PathBuf) { self.path = path }
-    pub fn set_http_version(&mut self, http_version: f32) { self.http_version = http_version }
+    pub fn set_method(&mut self, method: String) { return self.method = method; }
+    pub fn set_path(&mut self, path: PathBuf) { return self.path = path; }
+    pub fn set_http_version(&mut self, http_version: f32) { return self.http_version = http_version; }
 }
 
 /// # Response struct
 /// Holds a response that will be sent to a client,
 ///
-/// Can be created using `Response::new(r_status: &str, r_content_type: &str, r_content: &str)`, `r_*` does not need header names,
+/// Can be created using `Response::new(r_status: &str, r_file: File)`,
 ///
 /// Has `get_*`, `set_*`.
 
@@ -184,35 +184,35 @@ impl Response {
             content_type: "Content-Type: ".to_string() + r_file.clone().get_mime_type().as_str(),
             content_length: "Content-Length: ".to_string() + r_content_length.to_string().as_str(),
 
-            content: r_file.get_content().to_string()
+            content: r_file.get_content().to_string(),
         }
     }
 
-    /// Turn a `Response` into `[String; 5]` (allowing for loops).
+    /// Turn a `Response` into `[String; 6]` (allowing for loops).
     pub fn iter(self) -> [String; 6] {
-        return [self.status, self.server, self.content_type, self.content_length, "".to_string(), self.content]
+        return [self.status, self.server, self.content_type, self.content_length, "".to_string(), self.content];
     }
 
     /// Return a basic 400 Bad Request.
     pub fn bad_request() -> Response {
         return Response::new("400 Bad Request",
-                             File::bad_request())
+                             File::bad_request());
     }
 
     /// Return a basic 404 Not Found.
     pub fn not_found() -> Response {
         return Response::new("404 Not Found",
-                             File::not_found())
+                             File::not_found());
     }
 
-    pub fn get_status(self) -> String { return self.status }
-    pub fn get_server(self) -> String { return self.server }
-    pub fn get_content_type(self) -> String { return self.content_type }
-    pub fn get_content_length(self) -> String { return self.content_length }
-    pub fn get_content(self) -> String { return self.content }
+    pub fn get_status(self) -> String { return self.status; }
+    pub fn get_server(self) -> String { return self.server; }
+    pub fn get_content_type(self) -> String { return self.content_type; }
+    pub fn get_content_length(self) -> String { return self.content_length; }
+    pub fn get_content(self) -> String { return self.content; }
 
-    pub fn set_status(&mut self, status: String) { self.status = status }
-    pub fn set_content_type(&mut self, content_type: String) { self.content_type = content_type }
+    pub fn set_status(&mut self, status: String) { return self.status = status; }
+    pub fn set_content_type(&mut self, content_type: String) { return self.content_type = content_type; }
 
     /// Will automatically define Content-Length as per the `Response.content`.
     pub fn set_content_length(&mut self) {
@@ -220,7 +220,7 @@ impl Response {
         return self.content_length = "Content-Length: ".to_string() + content_length.to_string().as_str();
     }
 
-    pub fn set_content(&mut self, content: String) { self.content = content }
+    pub fn set_content(&mut self, content: String) { return self.content = content; }
 }
 
 /// # File struct
@@ -236,17 +236,17 @@ pub struct File {
 #[allow(dead_code)]
 impl File {
     pub fn new(name: String, content: String) -> File {
-        File {
+        return File {
             mime_type: File::fetch_mime(name.clone()),
             name,
-            content
-        }
+            content,
+        };
     }
 
     fn fetch_mime(name: String) -> String {
         if ! name.contains(".") {
-            return "text/plain".to_string()
-        }
+            return "text/plain".to_string();
+        };
 
         let ext = name.split(".").last().unwrap();
 
@@ -282,31 +282,31 @@ impl File {
             "woff" => "font/woff",
             "woff2" => "font/woff2",
 
-            _ => "application/octet-stream"
+            _ => "application/octet-stream",
         };
 
-        return r.to_string()
+        return r.to_string();
     }
 
     fn bad_request() -> File {
         let cwd = current_dir().unwrap().into_os_string().into_string().unwrap();
 
         return File::new("error.html".to_string(),
-                         read_to_string(PathBuf::from(cwd + "/error/400.html")).unwrap())
+                         read_to_string(PathBuf::from(cwd + "/error/400.html")).unwrap());
     }
 
     fn not_found() -> File {
         let cwd = current_dir().unwrap().into_os_string().into_string().unwrap();
 
         return File::new("error.html".to_string(),
-                         read_to_string(PathBuf::from(cwd + "/error/404.html")).unwrap())
+                         read_to_string(PathBuf::from(cwd + "/error/404.html")).unwrap());
     }
 
-    pub fn get_name(self) -> String { println!("{}", self.name.len().to_string()); return self.name }
-    pub fn get_content(self) -> String { return self.content }
-    pub fn get_mime_type(self) -> String { return self.mime_type }
+    pub fn get_name(self) -> String { return self.name; }
+    pub fn get_content(self) -> String { return self.content; }
+    pub fn get_mime_type(self) -> String { return self.mime_type; }
 
-    pub fn set_name(&mut self, name: String) { self.name = name }
-    pub fn set_content(&mut self, content: String) { self.content = content }
-    pub fn set_mime_type(mut self) { self.mime_type = File::fetch_mime(self.name) }
+    pub fn set_name(&mut self, name: String) { return self.name = name; }
+    pub fn set_content(&mut self, content: String) { return self.content = content; }
+    pub fn set_mime_type(mut self) { return self.mime_type = File::fetch_mime(self.name); }
 }
