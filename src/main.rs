@@ -3,13 +3,13 @@ extern crate core;
 
 mod gr_conn_handler;
 mod gr_file_handler;
-mod gr_structs;
+mod structs;
 
 use crate::gr_conn_handler::handler;
-use crate::gr_structs::{Request, Response, Server};
 use std::io::Result;
 use std::net::{SocketAddr, TcpListener};
 use std::thread::spawn;
+use crate::structs::server::Server;
 
 // TODO: config file
 

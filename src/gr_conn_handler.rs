@@ -2,10 +2,12 @@
 //! `gr_conn_handler` is dedicated to handling/replying to `TcpStream` using `handler()`, `reader()` and `sender()`.
 
 use crate::gr_file_handler::get_file;
-use crate::gr_structs::{Command, Error};
-use crate::{Request, Response};
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpStream;
+use crate::structs::command::Command;
+use crate::structs::error::Error;
+use crate::structs::request::Request;
+use crate::structs::response::Response;
 
 /// # Request Handler
 /// Public Function that is gonna handle a `TcpStream`.
