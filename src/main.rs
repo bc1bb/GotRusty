@@ -16,11 +16,8 @@ use crate::structs::server::Server;
 ///
 /// Creates a thread that sends incoming `TcpStream` to `gr_conn_handler::handler()`.
 fn main() -> Result<()> {
-    // Create a Server
-    let my_server = Server::new("Config.toml");
-
     // Create a Socket
-    let socket = SocketAddr::new(my_server.clone().get_addr(), my_server.get_port());
+    let socket = SocketAddr::new(Server::get_addr(), Server::get_port());
 
     // Bind and listen
     let listener = TcpListener::bind(socket)?;

@@ -1,6 +1,8 @@
 addr = "127.0.0.1"
 port = 1337
-file_root = "."
+
+# Don't put trailing slash
+file_root = "./html"
 errors_root  = "./error"
 
 # Default mime type is used when a user tries to open a file with an unknown extension

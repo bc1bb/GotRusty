@@ -1,5 +1,5 @@
+use std::env;
 use std::net::{IpAddr, Ipv4Addr};
-use std::path::PathBuf;
 use config::Config;
 
 /// # Server struct
@@ -12,28 +12,58 @@ use config::Config;
 pub struct Server {
     addr: IpAddr,
     port: u16,
-    file_root: PathBuf,
-    errors_root: PathBuf,
+    file_root: String, // fuck PathBuf, all my homies hate PathBuf
+    errors_root: String,
     mime_default: String,
 }
 
 #[allow(dead_code)]
 impl Server {
-    /// Takes the path to config file as an argument and makes a `Server`
-    pub fn new(path: &str) -> Server {
-        let settings = Config::builder()
-            .add_source(config::File::with_name(path))
-            .add_source(config::Environment::with_prefix("GR_"))
-            .build()
-            .unwrap();
+    /// Reads config file and makes a `Server`
+    fn read_config() -> Server {
+        // Either find Config.toml at GR_Config env var or current folder
+        let config_path = env::var("GR_Config").unwrap_or("./Config.toml".parse().unwrap());
 
+        let settings = Config::builder()
+            .add_source(config::File::with_name(&*config_path))
+            .add_source(config::Environment::with_prefix("GR_"))
+            .build();
+
+        // if no config file, return default value
+        if settings.is_err() {
+            return Server {
+                addr: Server::parse_addr("127.0.0.1".to_string()),
+                port: 1337,
+                file_root: ".".parse().unwrap(),
+                errors_root: "./error".parse().unwrap(),
+                mime_default: "text/plain".parse().unwrap()
+            };
+        }
+
+        let settings = settings.unwrap();
         return Server {
             addr: Server::parse_addr(settings.get("addr").unwrap()),
             port: settings.get("port").unwrap(),
-            file_root: PathBuf::from(settings.get::<String>("file_root").unwrap()),
-            errors_root: PathBuf::from(settings.get::<String>("errors_root").unwrap()),
+            file_root: settings.get("file_root").unwrap(),
+            errors_root: settings.get("errors_root").unwrap(),
             mime_default: settings.get("mime_default").unwrap()
         };
+    }
+
+    pub fn get_addr() -> IpAddr {
+        return Server::read_config().addr
+    }
+    pub fn get_port() -> u16 {
+        return Server::read_config().port
+    }
+    pub fn get_file_root() -> String {
+        return Server::read_config().file_root
+    }
+    pub fn get_errors_root() -> String {
+        return Server::read_config().errors_root
+    }
+    pub fn get_mime_default() -> String {
+        return Server::read_config().mime_default
     }
 
     /// This function is used to parse IPv4 `String` into `IpAddr::V4`.
@@ -69,19 +99,5 @@ impl Server {
             split_addr[2].to_string().parse().unwrap(),
             split_addr[3].to_string().parse().unwrap(),
         ));
-    }
-
-    pub fn get_addr(self) -> IpAddr {
-        return self.addr;
-    }
-    pub fn get_port(self) -> u16 {
-        return self.port;
-    }
-
-    pub fn set_addr(&mut self, addr: String) {
-        return self.addr = Server::parse_addr(addr);
-    }
-    pub fn set_port(&mut self, port: u16) {
-        return self.port = port;
     }
 }

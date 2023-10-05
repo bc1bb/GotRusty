@@ -1,11 +1,11 @@
 //! # GotRusty File Handler
 //! This file holds all file related stuff required in GR.
 
-use std::env::current_dir;
 use std::fs::read;
 use std::path::{Path, PathBuf};
 use crate::structs::error::Error;
 use crate::structs::file::File;
+use crate::structs::server::Server;
 
 
 /// # File Reader
@@ -43,8 +43,7 @@ fn read_file(path: Box<Path>) -> Result<Vec<u8>, Error> {
 
 /// Return complete path of cwd + req.command.path
 fn get_absolute_path(path: PathBuf) -> Box<Path> {
-    // TODO: probably make this less hacky...
-    let cwd = current_dir().unwrap().to_str().unwrap().to_string(); //TODO:config
+    let cwd = Server::get_file_root();
 
     // Request path
     let r_path = path.to_str().unwrap().to_string();

@@ -3,6 +3,7 @@
 use std::env::current_dir;
 use std::fs::read;
 use std::path::PathBuf;
+use crate::structs::server::Server;
 
 #[derive(Clone)]
 pub struct File {
@@ -28,6 +29,7 @@ impl File {
 
         let ext = name.split(".").last().unwrap();
 
+        let binding = Server::get_mime_default();
         let r = match ext {
             // HTML
             "html" => "text/html",
@@ -60,35 +62,23 @@ impl File {
             "woff" => "font/woff",
             "woff2" => "font/woff2",
 
-            _ => "application/octet-stream", //TODO:CONFIG
+            _ => &*binding,
         };
 
         return r.to_string();
     }
 
     pub fn bad_request() -> File {
-        let cwd = current_dir()
-            .unwrap()
-            .into_os_string()
-            .into_string()
-            .unwrap();
-
         return File::new(
             "error.html".to_string(),
-            read(PathBuf::from(cwd + "/error/400.html")).unwrap(), //TODO:config
+            read(PathBuf::from(Server::get_errors_root() + "/400.html")).unwrap(),
         );
     }
 
     pub fn not_found() -> File {
-        let cwd = current_dir()
-            .unwrap()
-            .into_os_string()
-            .into_string()
-            .unwrap();
-
         return File::new(
             "error.html".to_string(),
-            read(PathBuf::from(cwd + "/error/404.html")).unwrap(),//TODO:config
+            read(PathBuf::from(Server::get_errors_root() + "/404.html")).unwrap(),
         );
     }
 
