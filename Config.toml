@@ -1,0 +1,9 @@
+addr = "127.0.0.1"
+port = 1337
+file_root = "."
+errors_root  = "./error"
+
+# Default mime type is used when a user tries to open a file with an unknown extension
+# application/octet+stream or text/plain are the two most used
+mime_default = "text/plain"
+#mime_default = "application/octet-stream"

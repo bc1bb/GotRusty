@@ -11,18 +11,16 @@ use std::net::{SocketAddr, TcpListener};
 use std::thread::spawn;
 use crate::structs::server::Server;
 
-// TODO: config file
-
 /// # Main Function
 /// Creates a `Server`, `SocketAddr`, `TcpListener` (binds it),
 ///
 /// Creates a thread that sends incoming `TcpStream` to `gr_conn_handler::handler()`.
 fn main() -> Result<()> {
     // Create a Server
-    let my_server = Server::new("127.0.0.1", 1337);
+    let my_server = Server::new("Config.toml");
 
     // Create a Socket
-    let socket = SocketAddr::new(my_server.get_addr(), my_server.get_port());
+    let socket = SocketAddr::new(my_server.clone().get_addr(), my_server.get_port());
 
     // Bind and listen
     let listener = TcpListener::bind(socket)?;

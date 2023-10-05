@@ -60,13 +60,13 @@ impl File {
             "woff" => "font/woff",
             "woff2" => "font/woff2",
 
-            _ => "application/octet-stream",
+            _ => "application/octet-stream", //TODO:CONFIG
         };
 
         return r.to_string();
     }
 
-    pub(crate) fn bad_request() -> File {
+    pub fn bad_request() -> File {
         let cwd = current_dir()
             .unwrap()
             .into_os_string()
@@ -75,11 +75,11 @@ impl File {
 
         return File::new(
             "error.html".to_string(),
-            read(PathBuf::from(cwd + "/error/400.html")).unwrap(),
+            read(PathBuf::from(cwd + "/error/400.html")).unwrap(), //TODO:config
         );
     }
 
-    pub(crate) fn not_found() -> File {
+    pub fn not_found() -> File {
         let cwd = current_dir()
             .unwrap()
             .into_os_string()
@@ -88,7 +88,7 @@ impl File {
 
         return File::new(
             "error.html".to_string(),
-            read(PathBuf::from(cwd + "/error/404.html")).unwrap(),
+            read(PathBuf::from(cwd + "/error/404.html")).unwrap(),//TODO:config
         );
     }
 

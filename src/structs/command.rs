@@ -37,8 +37,8 @@ impl Command {
         });
     }
 
-    /// Private function allowing creation of empty Command.
-    pub(crate) fn adhoc() -> Command {
+    /// Function allowing creation of empty Command.
+    pub fn adhoc() -> Command {
         return Command {
             method: "GET".to_string(),
             path: PathBuf::from("/"),

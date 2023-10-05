@@ -43,9 +43,8 @@ fn read_file(path: Box<Path>) -> Result<Vec<u8>, Error> {
 
 /// Return complete path of cwd + req.command.path
 fn get_absolute_path(path: PathBuf) -> Box<Path> {
-    // TODO: allow use of non-cwd base folders
     // TODO: probably make this less hacky...
-    let cwd = current_dir().unwrap().to_str().unwrap().to_string();
+    let cwd = current_dir().unwrap().to_str().unwrap().to_string(); //TODO:config
 
     // Request path
     let r_path = path.to_str().unwrap().to_string();
