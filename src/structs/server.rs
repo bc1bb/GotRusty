@@ -42,11 +42,11 @@ impl Server {
 
         let settings = settings.unwrap();
         return Server {
-            addr: Server::parse_addr(settings.get("addr").unwrap()),
-            port: settings.get("port").unwrap(),
-            file_root: settings.get("file_root").unwrap(),
-            errors_root: settings.get("errors_root").unwrap(),
-            mime_default: settings.get("mime_default").unwrap()
+            addr: Server::parse_addr(settings.get("addr").unwrap_or("127.0.0.1".parse().unwrap())),
+            port: settings.get("port").unwrap_or(1337),
+            file_root: settings.get("file_root").unwrap_or(".".parse().unwrap()),
+            errors_root: settings.get("errors_root").unwrap_or("./error".parse().unwrap()),
+            mime_default: settings.get("mime_default").unwrap_or("text/plain".parse().unwrap()),
         };
     }
 
