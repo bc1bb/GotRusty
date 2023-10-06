@@ -1,8 +1,10 @@
 # GotRusty
 
-HTTP server made in Rust ~~with no dependency~~.
+Simple HTTP server made in Rust.
 
 **Please do not use in prod.**
+
+As per `wrk` (8t,8c) on a MacBook Pro M1, this server handles 1.7k req/s. (terrible)
 
 ## Config
 Environment variables can be used to set any settings including config file path: `GR_Config`: `/etc/gotrusty/Config.toml`
