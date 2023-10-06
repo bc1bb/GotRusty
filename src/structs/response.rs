@@ -6,7 +6,6 @@ use crate::structs::file::File;
 /// Can be created using `Response::new(r_status: &str, r_file: File)`,
 ///
 /// Has `get_*`, `set_*`.
-
 pub struct Response {
     // HTTP HEADERS
     status: String,         // HTTP/1.0 200 OK
@@ -18,7 +17,6 @@ pub struct Response {
     content: Vec<u8>, // <title>Got Rusty!</title>
 }
 
-#[allow(dead_code)]
 impl Response {
     /// Creates a `Response` from a status and a `File`
     pub fn new(r_status: &str, r_file: File) -> Response {
@@ -55,39 +53,5 @@ impl Response {
     /// Return a basic 404 Not Found.
     pub fn not_found() -> Response {
         return Response::new("404 Not Found", File::not_found());
-    }
-
-    pub fn get_status(self) -> String {
-        return self.status;
-    }
-    pub fn get_server(self) -> String {
-        return self.server;
-    }
-    pub fn get_content_type(self) -> String {
-        return self.content_type;
-    }
-    pub fn get_content_length(self) -> String {
-        return self.content_length;
-    }
-    pub fn get_content(self) -> Vec<u8> {
-        return self.content;
-    }
-
-    pub fn set_status(&mut self, status: String) {
-        return self.status = status;
-    }
-    pub fn set_content_type(&mut self, content_type: String) {
-        return self.content_type = content_type;
-    }
-
-    /// Will automatically define Content-Length as per the `Response.content`.
-    pub fn set_content_length(&mut self) {
-        let content_length = self.content.len();
-        return self.content_length =
-            "Content-Length: ".to_string() + content_length.to_string().as_str();
-    }
-
-    pub fn set_content(&mut self, content: Vec<u8>) {
-        return self.content = content;
     }
 }

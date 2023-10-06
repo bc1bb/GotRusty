@@ -17,7 +17,6 @@ pub struct Command {
     http_version: f32, // HTTP/1.0
 }
 
-#[allow(dead_code)]
 impl Command {
     /// Turn the first line of an HTTP request into a `Command`,
     ///
@@ -46,23 +45,7 @@ impl Command {
         };
     }
 
-    pub fn get_method(self) -> String {
-        return self.method;
-    }
     pub fn get_path(self) -> PathBuf {
         return self.path;
-    }
-    pub fn get_http_version(&self) -> f32 {
-        return self.http_version;
-    }
-
-    pub fn set_method(&mut self, method: String) {
-        return self.method = method;
-    }
-    pub fn set_path(&mut self, path: PathBuf) {
-        return self.path = path;
-    }
-    pub fn set_http_version(&mut self, http_version: f32) {
-        return self.http_version = http_version;
     }
 }

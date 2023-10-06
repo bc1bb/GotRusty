@@ -17,7 +17,6 @@ pub struct Server {
     mime_default: String,
 }
 
-#[allow(dead_code)]
 impl Server {
     /// Reads config file and makes a `Server`
     fn read_config() -> Server {

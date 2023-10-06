@@ -18,7 +18,6 @@ pub struct Request {
     // Request.command has to have "HTTP/" and a User-Agent
 }
 
-#[allow(dead_code)]
 impl Request {
     /// Creates a basic `Request` that can be edited with `set_*`.
     pub fn new() -> Request {
@@ -31,12 +30,6 @@ impl Request {
 
     pub fn get_command(self) -> Command {
         return self.command;
-    }
-    pub fn get_host(self) -> String {
-        return self.host;
-    }
-    pub fn get_user_agent(self) -> String {
-        return self.user_agent;
     }
 
     pub fn set_command(&mut self, command: Command) {

@@ -1,18 +1,17 @@
 /// # File struct
 /// Holds a file content that will be sent to a client.
-use std::env::current_dir;
 use std::fs::read;
 use std::path::PathBuf;
 use crate::structs::server::Server;
 
 #[derive(Clone)]
+#[allow(dead_code)]
 pub struct File {
     name: String,
     content: Vec<u8>,
     mime_type: String,
 }
 
-#[allow(dead_code)]
 impl File {
     pub fn new(name: String, content: Vec<u8>) -> File {
         return File {
@@ -29,7 +28,7 @@ impl File {
 
         let ext = name.split(".").last().unwrap();
 
-        let binding = Server::get_mime_default();
+        let mime_default = Server::get_mime_default();
         let r = match ext {
             // HTML
             "html" => "text/html",
@@ -62,7 +61,7 @@ impl File {
             "woff" => "font/woff",
             "woff2" => "font/woff2",
 
-            _ => &*binding,
+            _ => &*mime_default,
         };
 
         return r.to_string();
@@ -82,23 +81,10 @@ impl File {
         );
     }
 
-    pub fn get_name(self) -> String {
-        return self.name;
-    }
     pub fn get_content(self) -> Vec<u8> {
         return self.content;
     }
     pub fn get_mime_type(self) -> String {
         return self.mime_type;
-    }
-
-    pub fn set_name(&mut self, name: String) {
-        return self.name = name;
-    }
-    pub fn set_content(&mut self, content: Vec<u8>) {
-        return self.content = content;
-    }
-    pub fn set_mime_type(mut self) {
-        return self.mime_type = File::fetch_mime(self.name);
     }
 }
